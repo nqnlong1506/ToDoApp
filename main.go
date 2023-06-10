@@ -14,6 +14,8 @@ func info(ctx *gin.Context) {
 	})
 }
 
+var currentUser = ""
+
 func main() {
 	router := gin.Default()
 
@@ -24,14 +26,33 @@ func main() {
 	// To Do App routers
 	router.GET("/", info) // project info
 
-	router.GET("/tasks", api.GetTasks) // get all tasks
+	router.POST("/login", handleLogini)
 
-	router.POST("/tasks/add", api.AddTask) // create task
-
-	router.PUT("/tasks/:id", api.CompletedTask) // complete task
-
-	router.DELETE("/tasks/:id", api.DeleteTask) // delete task
+	routerGroup := router.Group("/tasks", userAuthentication)
+	{
+		routerGroup.GET("", api.GetTasks)          // get all tasks
+		routerGroup.POST("/add", api.AddTask)      // create task
+		routerGroup.PUT("/:id", api.CompletedTask) // complete task
+		routerGroup.DELETE("/:id", api.DeleteTask) // delete task
+	}
 
 	// Start the server
-	router.Run(":80")
+	router.Run(":8080")
+}
+
+func userAuthentication(ctx *gin.Context) {
+	if currentUser == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		ctx.Abort()
+		return
+	}
+	ctx.Next()
+}
+
+func handleLogini(ctx *gin.Context) {
+	currentUser = "nqnlong"
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "login successfully",
+	})
 }
