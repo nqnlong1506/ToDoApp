@@ -24,6 +24,21 @@ func DeleteTask(ctx *gin.Context) {
 		log.Fatal(err)
 	}
 
+	query = `SELECT COUNT(*) from tasks`
+	var count int
+	err = dbase.DB.QueryRow(query).Scan(&count)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	query = fmt.Sprintf(`SELECT setval('tasks_task_id_seq', %d)`, count)
+	_, err = dbase.DB.Exec(query)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "delete task successfully",
 	})

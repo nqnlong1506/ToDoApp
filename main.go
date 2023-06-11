@@ -26,7 +26,9 @@ func main() {
 	// To Do App routers
 	router.GET("/", info) // project info
 
-	router.POST("/login", handleLogini)
+	router.POST("/login", handleLogin)
+
+	router.POST("/signup", signup)
 
 	routerGroup := router.Group("/tasks", userAuthentication)
 	{
@@ -49,9 +51,15 @@ func userAuthentication(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func handleLogini(ctx *gin.Context) {
+func handleLogin(ctx *gin.Context) {
 	currentUser = "nqnlong"
 
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "login successfully",
+	})
+}
+
+func signup(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "login successfully",
 	})

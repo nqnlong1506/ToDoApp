@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +19,8 @@ func IndexHandler(ctx *gin.Context) {
 func GetTasks(ctx *gin.Context) {
 	rows, err := dbase.DB.Query("SELECT * FROM tasks")
 	if err != nil {
-		log.Fatal(err)
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
 	defer rows.Close()
 
@@ -46,7 +46,8 @@ func GetTasks(ctx *gin.Context) {
 
 	// Check for any errors during iteration
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -77,7 +78,7 @@ func AddTask(ctx *gin.Context) {
 	_, err = dbase.DB.Exec(query)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
-		log.Fatal(err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
